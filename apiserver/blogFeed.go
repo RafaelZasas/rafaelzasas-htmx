@@ -21,7 +21,9 @@ func (api *api) bindBlogFeedRoutes() {
 	api.router.GET("/blog/tags", api.handleBlogTags)
 }
 
-func (api *api) handleBlogFeedPage(w http.ResponseWriter, r *http.Request, data *pageData) {
+func (api *api) handleBlogFeedPage(w http.ResponseWriter, r *http.Request) {
+	data := api.basePageData(r.Context())
+
 	tmpl := api.newTemplate("views/blog/blogFeed.html")
 	data.Title = "Blog | Rafael Zasas"
 	data.Description = "A blog created using Go on the streets and HTMX in the sheets."
@@ -31,7 +33,13 @@ func (api *api) handleBlogFeedPage(w http.ResponseWriter, r *http.Request, data 
 	tmpl.Render(w, "base", data)
 }
 
-func (api *api) handleBlogPreviews(w http.ResponseWriter, r *http.Request, _ *pageData) {
+func (api *api) handleBlogPreviews(w http.ResponseWriter, r *http.Request) {
+	db, err := api.DbFromContext(r.Context())
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
 	baseTemplate := api.newTemplate("views/blog/blogFeed.html")
 
 	page, err := strconv.Atoi(r.URL.Query().Get("page"))
@@ -49,14 +57,14 @@ func (api *api) handleBlogPreviews(w http.ResponseWriter, r *http.Request, _ *pa
 	// Get the posts for the current page
 	var posts []*models.BlogPost
 	if tagId > 0 {
-		posts, err = api.DB().GetPostPreviewsByTagId(tagId, startIndex, pageSize)
+		posts, err = db.GetPostPreviewsByTagId(tagId, startIndex, pageSize)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 	} else {
-		posts, err = api.DB().GetPostPreviews(startIndex, pageSize)
+		posts, err = db.GetPostPreviews(startIndex, pageSize)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -104,12 +112,18 @@ func (api *api) handleBlogPreviews(w http.ResponseWriter, r *http.Request, _ *pa
 	return
 }
 
-func (api *api) handleBlogSearch(w http.ResponseWriter, r *http.Request, _ *pageData) {
+func (api *api) handleBlogSearch(w http.ResponseWriter, r *http.Request) {
+	db, err := api.DbFromContext(r.Context())
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
 	baseTemplate := api.newTemplate("views/blog/blogFeed.html")
 	searchQuery := r.URL.Query().Get("q")
 
 	if searchQuery == "" {
-		posts, err := api.DB().GetPostPreviews(0, pageSize)
+		posts, err := db.GetPostPreviews(0, pageSize)
 		if err != nil {
 			log.Println(fmt.Errorf("(api *api) handleBlogSearch: %w", err))
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -136,7 +150,7 @@ func (api *api) handleBlogSearch(w http.ResponseWriter, r *http.Request, _ *page
 		}
 		tmpl.Execute(w, nil)
 	} else {
-		posts, err := api.DB().SearchPosts(searchQuery)
+		posts, err := db.SearchPosts(searchQuery)
 		if err != nil {
 			log.Println(fmt.Errorf("Error executing snippet template: %w", err))
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -175,9 +189,15 @@ func (api *api) handleBlogSearch(w http.ResponseWriter, r *http.Request, _ *page
 	}
 }
 
-func (api *api) handleBlogTopics(w http.ResponseWriter, r *http.Request, data *pageData) {
-	var optionTags = make([]string, len(api.DB().CachedTopics()))
-	for i, topic := range api.DB().CachedTopics() {
+func (api *api) handleBlogTopics(w http.ResponseWriter, r *http.Request) {
+	db, err := api.DbFromContext(r.Context())
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	var optionTags = make([]string, len(db.CachedTopics()))
+	for i, topic := range db.CachedTopics() {
 		optionTags[i] = fmt.Sprintf(
 			"<option value=\"%d\">%s</option>",
 			topic.ID, topic.Name)
@@ -189,14 +209,20 @@ func (api *api) handleBlogTopics(w http.ResponseWriter, r *http.Request, data *p
 	return
 }
 
-func (api *api) handleBlogTags(w http.ResponseWriter, r *http.Request, data *pageData) {
-	tags := api.DB().CachedTags()
+func (api *api) handleBlogTags(w http.ResponseWriter, r *http.Request) {
+	db, err := api.DbFromContext(r.Context())
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	tags := db.CachedTags()
 
 	// Filter tags if a topicId is provided
 	topicIdStr := r.URL.Query().Get("topic")
 	topicId, err := strconv.Atoi(topicIdStr)
 	if err == nil {
-		if t, err := api.DB().GetBlogTagsByTopicId(topicId); err != nil {
+		if t, err := db.GetBlogTagsByTopicId(topicId); err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		} else {
 			tags = t

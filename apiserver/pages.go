@@ -1,7 +1,6 @@
 package apiserver
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 )
@@ -22,14 +21,14 @@ func (api *api) bindPageRoutes() {
 
 }
 
-func (api *api) handleIndex(w http.ResponseWriter, r *http.Request, data *pageData) {
-	fmt.Println("handleIndex")
+func (api *api) handleIndex(w http.ResponseWriter, r *http.Request) {
 	var tmpl = api.newTemplate("views/index.html")
+	data := api.basePageData(r.Context())
 	tmpl.Render(w, "base", data)
 }
 
-func (api *api) handleNotFound(w http.ResponseWriter, r *http.Request, data *pageData) {
-	fmt.Println("handleNotFound")
+func (api *api) handleNotFound(w http.ResponseWriter, r *http.Request) {
+	data := api.basePageData(r.Context())
 	var tmpl = api.newTemplate("views/404.html")
 	data.Title = "404 | Rafael Zasas"
 	w.WriteHeader(http.StatusNotFound)
@@ -38,28 +37,29 @@ func (api *api) handleNotFound(w http.ResponseWriter, r *http.Request, data *pag
 	tmpl.Render(w, "base", data)
 }
 
-func (api *api) handleAbout(w http.ResponseWriter, r *http.Request, data *pageData) {
-	fmt.Println("handleAbout")
+func (api *api) handleAbout(w http.ResponseWriter, r *http.Request) {
+	data := api.basePageData(r.Context())
 	var tmpl = api.newTemplate("views/about.html")
 	data.Title = "About | Rafael Zasas"
 	tmpl.Render(w, "base", data)
 }
 
-func (api *api) handleServicesView(w http.ResponseWriter, r *http.Request, data *pageData) {
-	fmt.Println("handleServicesView")
+func (api *api) handleServicesView(w http.ResponseWriter, r *http.Request) {
+	data := api.basePageData(r.Context())
 	var tmpl = api.newTemplate("views/services.html")
 	data.Title = "Services | Rafael Zasas"
 	tmpl.Render(w, "base", data)
 }
 
-func (api *api) handleContactView(w http.ResponseWriter, r *http.Request, data *pageData) {
-	fmt.Println("handleContactView")
+func (api *api) handleContactView(w http.ResponseWriter, r *http.Request) {
+	data := api.basePageData(r.Context())
 	var tmpl = api.newTemplate("views/contact.html")
 	data.Title = "Contact | Rafael Zasas"
 	tmpl.Render(w, "base", data)
 }
 
-func (api *api) handleLoginView(w http.ResponseWriter, r *http.Request, data *pageData) {
+func (api *api) handleLoginView(w http.ResponseWriter, r *http.Request) {
+	data := api.basePageData(r.Context())
 	if data.User != nil {
 		w.Header().Add("HX-Redirect", "/")
 		http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -76,14 +76,15 @@ func (api *api) handleLoginView(w http.ResponseWriter, r *http.Request, data *pa
 	tmpl.Render(w, "base", data)
 }
 
-func (api *api) handleSignUpView(w http.ResponseWriter, r *http.Request, data *pageData) {
-	fmt.Println("handleSignUpView")
+func (api *api) handleSignUpView(w http.ResponseWriter, r *http.Request) {
+	data := api.basePageData(r.Context())
 	var tmpl = api.newTemplate("views/register.html")
 	data.Title = "Register | Rafael Zasas"
 	tmpl.Render(w, "base", data)
 }
 
-func (api *api) handleProfileView(w http.ResponseWriter, r *http.Request, data *pageData) {
+func (api *api) handleProfileView(w http.ResponseWriter, r *http.Request) {
+	data := api.basePageData(r.Context())
 	if data.User == nil {
 		w.Header().Add("HX-Redirect", "/login")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)

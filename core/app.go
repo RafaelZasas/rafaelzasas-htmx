@@ -97,7 +97,7 @@ func (app *BaseApp) Bootstrap() error {
 
 	api := apiserver.New(app.ctx, app.db, app.FS())
 	app.api = api
-	if err := app.api.Bootstrap(); err != nil {
+	if err := app.api.Bootstrap(app.db); err != nil {
 		log.Println("failed to bootstrap api")
 		return fmt.Errorf("bootstrap: %s", err)
 	}

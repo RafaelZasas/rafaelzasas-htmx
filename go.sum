@@ -1,3 +1,5 @@
+github.com/ProteaTech/bok v0.1.5 h1:+hwm4Qyj6V1W4eWmXLYNYl1mXAoGz1AIQsiwvsf3fds=
+github.com/ProteaTech/bok v0.1.5/go.mod h1:e5XHEmPvtkaCem3gdN2aGWJO1TU85dhL5JiRx9zSMwQ=
 github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230512164433-5d1fd1a340c9 h1:goHVqTbFX3AIo0tzGr14pgfAW2ZfPChKO21Z9MGf/gk=
 github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230512164433-5d1fd1a340c9/go.mod h1:pSwJ0fSY5KhvocuWSx4fz3BA8OrA1bQn+K1Eli3BRwM=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

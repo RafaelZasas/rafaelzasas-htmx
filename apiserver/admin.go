@@ -1,6 +1,8 @@
 package apiserver
 
 import (
+	"context"
+	"fmt"
 	"html/template"
 	"htmx-go/models"
 	"htmx-go/models/permissions"
@@ -43,16 +45,19 @@ var adminLinks = []AdminLink{
 }
 
 func (api *api) bindAdminRoutes() {
+	router := api.router.WithMiddleware(adminRouteGuard())
+
 	// Authentication
-	api.router.GET("/admin", api.handleAdminPage)
-	api.router.GET("/admin/users", api.handleAdminUsersPage)
-	api.router.DELETE("/admin/users/{uid}", api.handleDeleteUser)
+	router.GET("/admin", api.handleAdminPage)
+	router.GET("/admin/users", api.handleAdminUsersPage)
+	router.DELETE("/admin/users/{uid}", api.handleDeleteUser)
 }
 
-func (api *api) newAdminTemplate(tmplName, route string) (Template, []AdminLink) {
+func (api *api) newAdminTemplate(ctx context.Context, tmplName, route string) (Template, []AdminLink) {
+	db, _ := api.DbFromContext(ctx)
 	newT := template.Must(api.baseTmpl.tmpl.Clone())
 	newT.Funcs(template.FuncMap{
-		"getRoleName": api.db.GetRoleName,
+		"getRoleName": db.GetRoleName,
 	})
 	newT = template.Must(newT.ParseFS(*api.fs, tmplName))
 
@@ -65,17 +70,30 @@ func (api *api) newAdminTemplate(tmplName, route string) (Template, []AdminLink)
 	return Template{tmpl: newT}, adminLinks
 }
 
-func (api *api) handleAdminPage(w http.ResponseWriter, r *http.Request, data *pageData) {
-	var tmpl, links = api.newAdminTemplate("views/admin/dashboard.html", "/admin")
-	data.Title = "Admin | Go-Htmx Example"
+func (api *api) handleAdminPage(w http.ResponseWriter, r *http.Request) {
+
+	data := api.basePageData(r.Context())
+
+	var tmpl, links = api.newAdminTemplate(
+		r.Context(), "views/admin/dashboard.html", "/admin",
+	)
+
+	fmt.Println(data.User)
 	data.Extra["AdminNavLinks"] = links
 	tmpl.Render(w, "adminLayout", data)
 	return
 }
 
-func (api *api) handleAdminUsersPage(w http.ResponseWriter, r *http.Request, data *pageData) {
-	var tmpl, links = api.newAdminTemplate("views/admin/users.html", "/admin/users")
-	users, err := api.db.GetUsers()
+func (api *api) handleAdminUsersPage(w http.ResponseWriter, r *http.Request) {
+	db, _ := api.DbFromContext(r.Context())
+
+	data := api.basePageData(r.Context())
+
+	var tmpl, links = api.newAdminTemplate(
+		r.Context(), "views/admin/users.html", "/admin/users",
+	)
+
+	users, err := db.GetUsers()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -87,7 +105,7 @@ func (api *api) handleAdminUsersPage(w http.ResponseWriter, r *http.Request, dat
 	return
 }
 
-func (api *api) handleDeleteUser(w http.ResponseWriter, r *http.Request, data *pageData) {
+func (api *api) handleDeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	uid := r.PathValue("uid")
 	if uid == "" {
