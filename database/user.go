@@ -131,3 +131,16 @@ func (db *db) UpdateUserRefreshToken(uid, refreshToken string) error {
 	_, err := db.Exec("UPDATE users SET refresh_token = ? WHERE uid = ?", refreshToken, uid)
 	return err
 }
+
+// GetUserRole returns the role_id of the user with the given uid
+// If the user does not exist, it returns 0 - ie. the default role
+// which is the lowest level of access, and has no permissions.
+func (db *db) GetUserRole(uid string) (int, error) {
+	var roleId int
+	row := db.QueryRow("SELECT role_id FROM users WHERE uid = ?", uid)
+	err := row.Scan(&roleId)
+	if err != nil {
+		return 0, err
+	}
+	return roleId, nil
+}
