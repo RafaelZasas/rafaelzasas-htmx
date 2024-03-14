@@ -7,8 +7,18 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
+
+// GenerateUID generates a unique identifier using uuid
+func GenerateUID() (string, error) {
+	uid, err := uuid.NewV7()
+	if err != nil {
+		return "", fmt.Errorf("uuid.NewV7: %w", err)
+	}
+	return uid.String(), nil
+}
 
 // HashPassword generates a bcrypt hash of the password using a default cost.
 func HashPassword(password string) (string, error) {
@@ -28,7 +38,7 @@ func CheckPasswordHash(password, hash string) bool {
 
 // GenerateJWTokens generates a pair of JWT tokens (access and refresh) for a given user ID.
 func GenerateJWTokens(uid string) (accessTokenString, refreshTokenString string, err error) {
-	jwtKey := os.Getenv("JWT_SECRET_KEY")
+	jwtKey := os.Getenv("JWT_KEY")
 	// Access token expires after 5 minutes
 	expirationTimeAccessToken := time.Now().Add(5 * time.Minute)
 	// Refresh token expires after 7 days
@@ -120,4 +130,28 @@ func ValidateRefreshToken(r *http.Request) (uid string, err error) {
 	}
 
 	return claims.Subject, nil
+}
+
+func AddAuthCookies(w *http.ResponseWriter, accessToken, refreshToken string) {
+	// set access token in cookie
+	http.SetCookie(*w, &http.Cookie{
+		Name:     "token",
+		Value:    accessToken,
+		Path:     "/",
+		Expires:  time.Now().Add(5 * time.Minute),
+		HttpOnly: true,
+		Secure:   os.Getenv("ENV") == "production",
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	// set refresh token in cookie
+	http.SetCookie(*w, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    refreshToken,
+		Path:     "/",
+		Expires:  time.Now().Add(24 * time.Hour),
+		HttpOnly: true,
+		Secure:   os.Getenv("ENV") == "production",
+		SameSite: http.SameSiteLaxMode,
+	})
 }
