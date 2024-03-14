@@ -1,0 +1,4 @@
+public/htmx/*
+public/styles.css
+bin/*
+views/components/appleSplashScreenLinks.html

@@ -1,0 +1,78 @@
+<!-- Allows users to edit their blog posts-->
+{{ define "content" }}
+  {{ $post := .Extra.Post }}
+
+
+  <div class="overflow-hidden">
+    <div class="mx-auto max-w-6xl">
+      <div class="flex px-4 pb-10 pt-8 lg:px-8">
+        <a
+          class="group flex text-sm font-semibold leading-6 text-slate-700 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white"
+          href="/blog/{{ $post.Slug }}"
+        >
+          <svg
+            viewBox="0 -9 3 24"
+            class="mr-3 h-6 w-auto overflow-visible text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300"
+          >
+            <path
+              d="M3 0L0 3L3 6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+          </svg>
+          Go back
+        </a>
+      </div>
+    </div>
+    <form
+      hx-patch="/blog/{{ $post.Slug }}"
+      id="editPostForm"
+      class="mx-auto flex w-full max-w-6xl flex-col space-y-6 px-4 py-8"
+    >
+      {{ template "input" withComponentData
+        "Label" "Title"
+        "Name" "Title"
+        "Type" "text"
+        "Value" $post.Title
+      }}
+
+      {{ template "input" withComponentData
+        "Label" "Slug"
+        "Name" "Slug"
+        "Type" "text"
+        "Value" $post.Slug
+      }}
+
+      {{ template "textarea" withComponentData
+        "Label" "Excerpt"
+        "Name" "Excerpt"
+        "Type" "text"
+        "Value" $post.Excerpt
+        "Rows" 3
+      }}
+
+      {{ template "textarea" withComponentData
+        "Label" "Content"
+        "Name" "Content"
+        "Value" $post.Content
+        "Rows" 10
+      }}
+
+
+      <button
+        type="submit"
+        class="flex w-full flex-row items-center justify-center
+        space-x-3 rounded-md border border-transparent bg-sky-800
+        p-2 text-sm font-medium text-white shadow-sm hover:bg-sky-900
+        hover:shadow-md focus:outline-none focus:ring-2
+        focus:ring-offset-2 disabled:cursor-wait disabled:bg-opacity-70
+        dark:bg-sky-500 dark:text-gray-950 dark:outline-gray-950 dark:hover:bg-sky-600"
+      >
+        <p>Save</p>
+      </button>
+    </form>
+  </div>
+{{ end }}

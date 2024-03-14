@@ -1,0 +1,196 @@
+{{ define "adminHeaderContent" }}
+  <h1 class="txt-center text-3xl">Users</h1>
+{{ end }}
+
+{{ define "adminContent" }}
+  <!--Admin page to view all the users in the application -->
+
+  {{ $users := .Extra.Users }}
+  <div class="mb-2 px-4 sm:px-6 lg:px-8">
+    <div class="sm:flex sm:items-center">
+      <div class="sm:flex-auto">
+        <h1 class="text-base font-semibold leading-6 text-gray-900">Users</h1>
+        <p class="mt-2 text-sm text-gray-700">
+          A list of all the users in your account including their name, title,
+          email and role.
+        </p>
+      </div>
+    </div>
+
+    {{ template "table" . }}
+  </div>
+{{ end }}
+
+{{ block "table" . }}
+  {{ $users := .Extra.Users }}
+  {{ $currentUser := .User }}
+  <table class="min-w-full divide-y divide-gray-300">
+    <thead>
+      <tr>
+        <th
+          scope="col"
+          class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0"
+        >
+          Name
+        </th>
+        <th
+          scope="col"
+          class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 lg:table-cell"
+        >
+          Email Verified
+        </th>
+        <th
+          scope="col"
+          class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 sm:table-cell"
+        >
+          Email
+        </th>
+        <th
+          scope="col"
+          class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+        >
+          Role
+        </th>
+        <th
+          scope="col"
+          class="relative py-3.5 pl-3 pr-4 sm:pr-0"
+        >
+          <span class="sr-only">Edit</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-200">
+      {{ range $users }}
+        {{ $user := . }}
+        <tr>
+          <td
+            class="w-full max-w-0 py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:w-auto sm:max-w-none sm:pl-0"
+          >
+            {{ $user.Name }}
+            <dl class="font-normal lg:hidden">
+              <dt class="sr-only">Verified</dt>
+              <dd class="mt-1 truncate text-gray-700">
+                {{ if $user.EmailVerified }}
+                  {{ template "verified" . }}
+                {{ else }}
+                  {{ template "notVerified" . }}
+                {{ end }}
+              </dd>
+              <dt class="sr-only sm:hidden">Email</dt>
+              <dd class="mt-1 truncate text-gray-500 sm:hidden">
+                {{ $user.Email }}
+              </dd>
+            </dl>
+          </td>
+
+          <td class="hidden px-3 py-4 text-sm text-gray-500 lg:table-cell">
+            {{ if $user.EmailVerified }}
+              {{ template "verified" . }}
+            {{ else }}
+              {{ template "notVerified" . }}
+            {{ end }}
+          </td>
+          <td class="hidden px-3 py-4 text-sm text-gray-500 sm:table-cell">
+            {{ $user.Email }}
+          </td>
+          <td class="px-3 py-4 text-sm text-gray-500">
+            {{ getRoleName $user.RoleId }}
+          </td>
+          <td class="py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
+            {{ if hasPermission $currentUser.RoleId "update_user" }}
+              {{ template "editButton" $user }}
+            {{ end }}
+
+            {{ if and (hasPermission $currentUser.RoleId "delete_user") (not (eq $user.RoleId 1)) }}
+              {{ template "deleteButton" $user }}
+            {{ end }}
+          </td>
+        </tr>
+      {{ end }}
+    </tbody>
+  </table>
+{{ end }}
+
+{{ block "verified" . }}
+  <span
+    class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20"
+    >Verified</span
+  >
+{{ end }}
+
+{{ block "notVerified" . }}
+  <span
+    class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20"
+    >Not Verified</span
+  >
+{{ end }}
+
+
+<!--This requires a User Object-->
+{{ block "editButton" . }}
+  {{ $user := . }}
+  <button
+    hx-post="/admin/users/edit"
+    hx-swap="none"
+    class="focus-visible:ring-ring inline-flex h-10
+    w-10 items-center justify-center whitespace-nowrap rounded-md
+    text-sm font-medium ring-offset-black transition-colors hover:bg-gray-100
+    hover:text-sky-600 focus-visible:outline-none focus-visible:ring-2
+    focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="h-4 w-4"
+    >
+      <path d="M4 13.5V4a2 2 0 0 1 2-2h8.5L20 7.5V20a2 2 0 0 1-2 2h-5.5"></path>
+      <polyline points="14 2 14 8 20 8"></polyline>
+      <path
+        d="M10.42 12.61a2.1 2.1 0 1 1 2.97 2.97L7.95 21 4 22l.99-3.95 5.43-5.44Z"
+      ></path>
+    </svg>
+    <span class="sr-only">Edit, {{ $user.Name }}</span>
+  </button>
+{{ end }}
+
+
+<!--This requires a User Object-->
+{{ block "deleteButton" . }}
+  {{ $user := . }}
+  <button
+    hx-delete="/admin/users/{{ $user.UID }}"
+    hx-swap="delete"
+    hx-confirm="Are you sure you want to delete {{ $user.Name }}?"
+    hx-target="closest tr"
+    class="focus-visible:ring-ring inline-flex h-10
+    w-10 items-center justify-center whitespace-nowrap rounded-md
+    text-sm font-medium ring-offset-black transition-colors hover:bg-gray-100
+    hover:text-sky-600 focus-visible:outline-none focus-visible:ring-2
+    focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="h-4 w-4"
+    >
+      <path d="M3 6h18"></path>
+      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+    </svg>
+    <span class="sr-only">Delete, {{ $user.Name }}</span>
+  </button>
+{{ end }}

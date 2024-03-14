@@ -1,0 +1,26 @@
+<!-- main content -->
+{{ define "content" }}
+  <div class="mx-4 mt-8 max-w-6xl p-2 md:mx-auto md:w-1/2">
+    <h2 class="text-2xl font-semibold text-gray-800">Services</h2>
+
+    <div class="mt-4">{{ template "outer" . }}</div>
+  </div>
+  <!-- end of main content-->
+{{ end }}
+<!-- end of services page block -->
+
+<!-- testing outer -->
+{{ define "outer" }}
+  <div class="m-3 rounded-md bg-emerald-300 p-2 text-center text-gray-800">
+    <p>Testing Outer</p>
+    {{ template "inner" . }}
+  </div>
+{{ end }}
+
+
+<!-- testing inner -->
+{{ define "inner" }}
+  <p class="m-3 rounded-md bg-sky-300 p-2 text-center text-gray-800">
+    Testing Inner
+  </p>
+{{ end }}

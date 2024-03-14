@@ -1,0 +1,55 @@
+<!-- Defines a reusable input field -->
+{{ define "textarea" -}}
+  {{ $label := .Label }}
+  {{ $name := .Name }}
+  {{ $placeholder := .Placeholder }}
+  {{ $type := .Type }}
+  {{ $value := .Value }}
+  {{ $id := (printf "form__%s" $name) }}
+  {{ $required := .Required }}
+  {{ $class := .Class }}
+  {{ $disabled := .Disabled }}
+  {{ $readonly := .Readonly }}
+  {{ $autofocus := .Autofocus }}
+  {{ $autocomplete := .Autocomplete }}
+  {{ $rows := .Rows }}
+
+  {{- if $name }}
+    <div class="flex w-full flex-col space-y-1">
+      {{ if $label }}
+        <label
+          for="{{ $id }}"
+          class="text sm block font-medium text-gray-700 dark:text-gray-100"
+        >
+          {{ $label }}
+        </label>
+      {{ end -}}
+
+
+      <textarea
+        type="{{ $type }}"
+        name="{{ $name }}"
+        {{ if or $id $label }}id="{{ $id }}"{{ end }}
+        {{ if $value }}value="{{ $value }}"{{ end }}
+        {{ if $placeholder }}placeholder="{{ $placeholder }}"{{ end }}
+        {{ if $required }}required{{ end }}
+        {{ if $disabled }}disabled{{ end }}
+        {{ if $readonly }}readonly{{ end }}
+        {{ if $autofocus }}autofocus{{ end }}
+        {{ if $autocomplete }}autocomplete="{{ $autocomplete }}"{{ end }}
+        {{ if $rows }}rows="{{ $rows }}"{{ end }}
+        class="
+            {{ if $class }}{{ $class }}{{ end }}
+            h-full min-h-20 w-full resize-y appearance-none
+            rounded-md border border-gray-300 bg-gray-50
+            p-2 text-gray-900 focus:border-sky-500 focus:outline-none
+            dark:border-slate-950 dark:bg-slate-900 dark:text-gray-100"
+      >
+        {{- $value -}}
+    </textarea
+      >
+    </div>
+  {{- else }}
+    <p class="text-red-500">Error: textarea component: name is required</p>
+  {{ end }}
+{{ end }}

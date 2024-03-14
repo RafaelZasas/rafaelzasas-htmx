@@ -1,0 +1,9 @@
+{{ define "content" }}
+  <div class="mx-4 mt-8 max-w-md md:mx-12 lg:mx-28">
+    <h2 class="text-lg font-semibold text-gray-800">Profile</h2>
+    <div class="mt-4">
+      <p class="mb-4">Welcome, {{ .User.Name }}!</p>
+      <p>Your email is {{ .User.Email }}.</p>
+    </div>
+  </div>
+{{ end }}

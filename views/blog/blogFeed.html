@@ -1,0 +1,258 @@
+{{ define "content" }}
+  <main
+    class="mx-auto max-w-[52rem] px-4 pb-28 sm:px-6 md:px-8 lg:max-w-6xl xl:px-12"
+  >
+    <div class="flex flex-col space-y-6">
+      <!--Filtering Section-->
+      <div
+        class="my-10 flex flex-col items-start
+          space-y-8 sm:ml-[calc(2rem+1px)] md:ml-[calc(3.5rem+1px)] md:flex-row
+          md:items-center md:justify-between md:space-y-0
+          lg:ml-2 xl:ml-[calc(100%-62rem)]"
+      >
+        {{ template "search" . }}
+        <div class="flex items-center justify-center space-x-4">
+          <!-- Topics Dropdown -->
+          {{ template "topicsDropdown" . }}
+          {{ template "tagsDropdown" . }}
+        </div>
+      </div>
+
+      <div
+        id="feedContainer"
+        class="relative min-h-[60vh] sm:ml-[calc(2rem+1px)] sm:pb-12
+    md:ml-[calc(3.5rem+1px)] lg:ml-[max(calc(14.5rem+1px),calc(100%-48rem))]"
+      >
+        <div
+          class="z-10 flex items-center justify-center text-slate-800 dark:text-sky-500"
+        >
+          {{ template "blocks-shuffle-indicator" }}
+        </div>
+        <!-- Small ball next to article on lg devices-->
+        <div
+          class="absolute bottom-0 right-full top-3 mr-7 hidden w-px
+                bg-slate-200 sm:block md:mr-[3.25rem] dark:bg-slate-600"
+        ></div>
+        <div
+          role="list"
+          class="space-y-16"
+          id="feed"
+          hx-trigger="load"
+          hx-get="/blog/previews"
+          hx-swap="innerHTML"
+          hx-target="this"
+          hx-indicator="#blocks-shuffle-indicator"
+        >
+          <!--Articles will be populated into here-->
+        </div>
+      </div>
+    </div>
+  </main>
+{{ end }}
+
+{{ block "search" . }}
+  <div class="relative w-full md:w-max">
+    <input
+      name="q"
+      hx-get="/blog/search"
+      hx-trigger="keyup changed delay:250ms"
+      hx-indicator="#blocks-shuffle-indicator"
+      hx-target="#feed"
+      hx-swap="innerHTML"
+      type="text"
+      class="flex w-full rounded-md border border-gray-300 bg-clip-padding
+            py-2 pl-10 pr-4 text-sm leading-5 shadow-sm
+            backdrop-blur-sm backdrop-filter focus:border-sky-600
+            focus:ring-sky-600 md:w-64 lg:w-80
+            dark:border-slate-900 dark:bg-slate-900/40 dark:text-gray-100"
+      placeholder="Search..."
+    />
+
+    <div
+      class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3"
+    >
+      {{ template "spinner" . }}
+    </div>
+    <div
+      class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+    >
+      <svg
+        class="h-5 w-5 bg-opacity-20 bg-clip-padding text-gray-400 backdrop-filter"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M9 3a6 6 0 100 12 6 6 0 000-12zm0 10a4 4 0 100-8 4 4 0 000 8z"
+        ></path>
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M14.293 14.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414l2.293-2.293-2.293-2.293a1 1 0 010-1.414z"
+        ></path>
+      </svg>
+    </div>
+  </div>
+{{ end }}
+
+{{ block "topicsDropdown" . }}
+  <div
+    hx-get="/blog/topics"
+    hx-trigger="load"
+    hx-target="#topics-filter"
+    hx-swap="beforeend"
+    class="relative"
+  >
+    <div class="flex items-center space-x-2">
+      <select
+        id="topics-filter"
+        name="topic"
+        hx-get="/blog/tags"
+        hx-target="#tags-filter"
+        hx-swap="innerHTML"
+        class="*:bg-rounded-2xl display-none *:display-none block w-32
+              cursor-pointer rounded-md border border-gray-300 bg-transparent 
+              bg-clip-padding px-2 py-2.5 text-sm leading-5 shadow-sm
+              backdrop-filter *:justify-center *:bg-clip-padding
+              *:px-2 *:py-2.5 *:backdrop-blur-md *:backdrop-filter
+              focus:border-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-600 
+              dark:border-slate-900 dark:bg-slate-900/20
+              dark:text-gray-100 *:dark:bg-slate-900 *:dark:text-gray-100"
+      >
+        <option
+          value=""
+          selected
+        >
+          All Topics
+        </option>
+      </select>
+      <label
+        for="topics-filter"
+        class="sr-only"
+      >
+        Topics
+      </label>
+    </div>
+  </div>
+{{ end }}
+
+{{ block "tagsDropdown" . }}
+  <!-- Fetch all the tags on load-->
+  <div
+    hx-get="/blog/tags"
+    hx-trigger="load"
+    hx-target="#tags-filter"
+    hx-swap="beforeend"
+    class="relative"
+  >
+    <div class="flex items-center space-x-2">
+      <label
+        for="tags-filter"
+        class="sr-only"
+      >
+        Tags
+      </label>
+      <!-- Fetch all the snippets that contain selected tag -->
+      <select
+        name="tag"
+        hx-get="/blog/previews"
+        hx-swap="innerHTML"
+        hx-target="#feed"
+        hx-indicator="#blocks-shuffle-indicator"
+        id="tags-filter"
+        class="*:bg-rounded-2xl display-none *:display-none block w-32
+              cursor-pointer rounded-md border border-gray-300 bg-transparent 
+              bg-clip-padding px-2 py-2.5 text-sm leading-5 shadow-sm
+              backdrop-filter *:justify-center *:bg-clip-padding
+              *:px-2 *:py-2.5 *:backdrop-blur-md *:backdrop-filter
+              focus:border-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-600 
+              dark:border-slate-900 dark:bg-slate-900/20
+              dark:text-gray-100 *:dark:bg-slate-900 *:dark:text-gray-100"
+      ></select>
+    </div>
+  </div>
+{{ end }}
+
+{{ block "snippet" . }}
+  {{ $post := . }}
+  <article class="group relative">
+    <div
+      class="absolute -inset-x-4 -inset-y-2.5 rounded-2xl
+      group-hover:bg-slate-50/70 md:-inset-x-6 md:-inset-y-4
+      dark:group-hover:bg-slate-600/20"
+    ></div>
+    <svg
+      viewBox="0 0 9 9"
+      class="absolute right-full top-2 mr-6 hidden
+      h-[calc(0.5rem+1px)] w-[calc(0.5rem+1px)]
+      overflow-visible text-slate-200 sm:block md:mr-12 dark:text-slate-600"
+    >
+      <circle
+        cx="4.5"
+        cy="4.5"
+        r="4.5"
+        stroke="currentColor"
+        class="fill-white dark:fill-slate-900"
+        stroke-width="2"
+      ></circle>
+    </svg>
+    <div class="relative">
+      <h3
+        class="pt-8 text-base font-semibold tracking-tight text-slate-900 lg:pt-0 dark:text-slate-200"
+      >
+        {{ $post.Title }}
+      </h3>
+      <div
+        class="prose prose-slate prose-a:relative prose-a:z-10 dark:prose-dark mb-4 mt-2 line-clamp-2"
+      >
+        <p>{{ $post.Excerpt }}</p>
+      </div>
+      <dl
+        class="absolute left-0 top-0 lg:left-auto lg:right-full lg:mr-[calc(6.5rem+1px)]"
+      >
+        <dt class="sr-only">Date</dt>
+        <dd class="whitespace-nowrap text-sm leading-6 dark:text-slate-400">
+          <time datetime="2023-12-20T20:00:00.000Z"
+            >{{ formatDate $post.PublishedAt }}</time
+          >
+        </dd>
+      </dl>
+    </div>
+    <a
+      class="flex items-center text-sm font-medium text-sky-500"
+      href="/blog/{{ $post.Slug }}"
+      ><span
+        class="absolute -inset-x-4 -inset-y-2.5 rounded-2xl md:-inset-x-6 md:-inset-y-4"
+      ></span
+      ><span class="relative"
+        >Read more<span class="sr-only"
+          >,
+          <!-- -->{{ $post.Title }}</span
+        ></span
+      ><svg
+        class="relative ml-2.5 mt-px overflow-visible text-sky-300 dark:text-sky-700"
+        width="3"
+        height="6"
+        viewBox="0 0 3 6"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M0 0L3 3L0 6"></path></svg
+    ></a>
+  </article>
+{{ end }}
+
+{{ define "noPosts" }}
+  <div
+    id="noPosts"
+    class="flex h-16 items-center justify-start"
+  >
+    <p class="text-2xl font-semibold text-gray-500 dark:text-gray-400">
+      You have reached the end! 🎉
+    </p>
+  </div>
+{{ end }}

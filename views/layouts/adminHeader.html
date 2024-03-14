@@ -1,0 +1,36 @@
+{{ define "adminHeader" }}
+  <header
+    class="bg-white/30 bg-clip-padding shadow backdrop-blur-sm backdrop-filter md:hidden"
+  >
+    <div class="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+      {{ template "adminHeaderContent" . }}
+      <!-- Mobile menu button -->
+      <button
+        type="button"
+        class="justify-self-end text-gray-500 hover:text-gray-600 "
+        aria-controls="sidebar"
+        aria-expanded="false"
+        onclick="toggleSidebar()"
+      >
+        <span class="sr-only">Open sidebar</span>
+        <!-- Icon when menu is closed. -->
+        <svg
+          id="sidebar-icon"
+          class="h-6 w-6"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16m-7 6h7"
+          />
+        </svg>
+      </button>
+    </div>
+  </header>
+{{ end }}

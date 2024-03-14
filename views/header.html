@@ -1,0 +1,192 @@
+{{ block "header" . }}
+  <header
+    class="supports-backdrop-blur:bg-white/60 sticky top-0 z-40
+    w-full flex-none bg-white/95 backdrop-blur transition-colors
+    duration-500 lg:z-50 lg:border-b lg:border-slate-900/10
+    dark:border-slate-50/[0.06] dark:bg-transparent"
+  >
+    <nav class="rounded-b-lg bg-gray-800 text-white">
+      <div class="mx-auto max-w-6xl px-4">
+        <div class="flex justify-between">
+          <div class="flex space-x-4">
+            <!-- logo -->
+            <div>
+              <a
+                href="/"
+                class="group flex items-center px-2 py-5 text-gray-400 hover:text-gray-300"
+              >
+                <img
+                  src="/public/images/logo.webp"
+                  alt="logo"
+                  height="56"
+                  width="56"
+                  class="aspect-square h-14 rounded-full object-contain text-white group-hover:outline group-hover:outline-gray-400"
+                />
+                <span class="ml-3 text-xl">Protea Tech</span>
+              </a>
+            </div>
+            <!-- primary nav -->
+            <div
+              class="hidden items-center space-x-1 md:flex"
+              hx-boost="true"
+            >
+              <a
+                href="/blog"
+                class="px-3 py-5 hover:text-gray-400"
+              >
+                Blog
+              </a>
+              <a
+                href="/about"
+                class="cursor-pointer px-3 py-5 hover:text-gray-400"
+              >
+                About
+              </a>
+              <a
+                href="/services"
+                class="px-3 py-5 hover:text-gray-400"
+              >
+                Services
+              </a>
+              <a
+                href="/contact"
+                class="cursor-pointer px-3 py-5 hover:text-gray-400"
+              >
+                Contact
+              </a>
+            </div>
+          </div>
+
+          <!-- secondary nav -->
+          {{ if .User }}
+            <div
+              hx-boost="true"
+              class="hidden items-center space-x-2 md:flex"
+            >
+              {{ if hasPermission .User.RoleId "view_admin" }}
+                <a
+                  href="/admin"
+                  class="rounded bg-sky-500 px-3 py-2 text-white hover:bg-sky-600 hover:shadow-sm"
+                >
+                  Admin
+                </a>
+              {{ end }}
+              <a
+                href="/profile"
+                class="rounded bg-gray-700 px-3 py-2 text-white hover:bg-gray-600"
+              >
+                Profile
+              </a>
+              <span
+                hx-post="/api/auth/logout"
+                hx-swap="none"
+                class="cursor-pointer rounded bg-green-500 px-3 py-2 text-white hover:bg-green-400"
+              >
+                Sign Out
+              </span>
+            </div>
+          {{ else }}
+            <div
+              hx-boost="true"
+              class="hidden items-center space-x-1 md:flex"
+            >
+              <a
+                href="/login"
+                class="rounded bg-gray-700 px-3 py-2 text-white hover:bg-gray-600"
+                >Login</a
+              >
+              <a
+                href="/register"
+                class="rounded bg-green-500 px-3 py-2 text-white hover:bg-green-400"
+                >Sign Up</a
+              >
+            </div>
+          {{ end }}
+          <!-- mobile button goes here -->
+          <div class="relative flex items-center md:hidden">
+            <button onCLick="toggleMenu()">
+              <svg
+                id="mobile-menu-icon"
+                class="h-6 w-6"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16m-7 6h7"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- mobile menu -->
+      <div
+        hx-boost="true"
+        id="mobile-menu"
+        class="mobile-menu absolute z-10 hidden w-full rounded-md bg-gray-800 bg-opacity-75 bg-clip-padding px-2 py-4 text-center backdrop-blur-sm backdrop-filter md:hidden"
+      >
+        <a
+          href="/blog"
+          class="block rounded-md px-4 py-2 text-sm hover:bg-gray-700"
+          >Blog</a
+        >
+        <a
+          href="/about"
+          class="block rounded-md px-4 py-2 text-sm hover:bg-gray-700"
+          >About</a
+        >
+        <a
+          href="/services"
+          class="block rounded-md px-4 py-2 text-sm hover:bg-gray-700"
+          >Services</a
+        >
+        <a
+          href="/contact"
+          class="block rounded-md px-4 py-2 text-sm hover:bg-gray-700"
+          >Contact</a
+        >
+        <div class="my-2 w-full px-4">
+          <hr class="border-1 border border-t border-slate-200" />
+        </div>
+        {{ if .User }}
+          {{ if hasPermission .User.RoleId "view_admin" }}
+            <a
+              href="/admin"
+              class="block rounded-md px-4 py-2 text-sm text-amber-500 hover:bg-amber-500 hover:text-white"
+            >
+              Admin
+            </a>
+          {{ end }}
+          <a
+            href="/profile"
+            class="block rounded-md px-4 py-2 text-sm hover:bg-gray-700"
+            >Profile</a
+          >
+          <span
+            hx-post="/api/auth/logout"
+            hx-swap="none"
+            class="block cursor-pointer rounded-md px-4 py-2 text-sm hover:bg-gray-700"
+          >
+            Sign Out
+          </span>
+        {{ else }}
+          <a
+            href="/login"
+            class="block rounded-md px-4 py-2 text-sm hover:bg-gray-700"
+            >Login</a
+          >
+          <a
+            href="/register"
+            class="block rounded-md px-4 py-2 text-sm hover:bg-gray-700"
+            >Sign Up</a
+          >
+        {{ end }}
+      </div>
+    </nav>
+  </header>
+{{ end }}
