@@ -97,11 +97,11 @@
             {{ getRoleName $user.RoleId }}
           </td>
           <td class="py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-            {{ if hasPermission $currentUser.RoleId "update_user" }}
+            {{ if hasPermission $currentUser.UID "update_user" }}
               {{ template "editButton" $user }}
             {{ end }}
 
-            {{ if and (hasPermission $currentUser.RoleId "delete_user") (not (eq $user.RoleId 1)) }}
+            {{ if and (hasPermission $currentUser.UID "delete_user") (not (eq $user.RoleId 1)) }}
               {{ template "deleteButton" $user }}
             {{ end }}
           </td>

@@ -27,9 +27,10 @@ type Database interface {
 	GetUserByUID(string) (*models.User, error)
 	GetUserRefreshToken(string) (string, error)
 	UpdateUserRefreshToken(string, string) error
+	GetUserRole(string) (int, error)
 
 	// Permission Methods
-	HasPermission(int, models.Permission) (bool, error)
+	HasPermission(uid string, p models.Permission) (bool, error)
 	GetRoleName(int) (string, error)
 
 	// Blog Posts Preview Methods
