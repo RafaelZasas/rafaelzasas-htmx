@@ -95,26 +95,29 @@ func (api *api) DbFromContext(ctx context.Context) (database.Database, error) {
 }
 
 func (api *api) basePageData(ctx context.Context) *pageData {
+
+	defaultPageData := &pageData{
+		Title:       "Rafael Zasas - Portfolio and Blog",
+		Keywords:    "portfolio, software, blog, technology, web development, programming, golang, go, htmx, html, css, javascript, web, development",
+		Description: "Personal blog and portfolio of Rafael Zasas, a software developer and owner of Protea Technology Services LLC.",
+		Extra:       make(map[string]interface{}),
+	}
+
 	uid := ctx.Value("uid")
-	user := &models.User{}
 	if uid != nil {
 		db, err := api.DbFromContext(ctx)
 		if err != nil {
 			slog.Error("could not get db from context", "err", err)
 		}
-		user, err = db.GetUserByUID(uid.(string))
+		user, err := db.GetUserByUID(uid.(string))
 		if err != nil {
 			slog.Error("could not get user from context", "err", err)
 		}
+		defaultPageData.User = user
 	}
 
-	return &pageData{
-		Title:       "Rafael Zasas - Portfolio and Blog",
-		Keywords:    "portfolio, software, blog, technology, web development, programming, golang, go, htmx, html, css, javascript, web, development",
-		Description: "Personal blog and portfolio of Rafael Zasas, a software developer and owner of Protea Technology Services LLC.",
-		Extra:       make(map[string]interface{}),
-		User:        user,
-	}
+	return defaultPageData
+
 }
 
 func (api *api) IsBootstrapped() bool {
