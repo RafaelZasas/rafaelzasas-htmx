@@ -10,10 +10,7 @@ primary_region = 'jnb'
 
 [env]
   ENV = 'production'
-  JWT_SECRET_KEY = 'oJ1hSZ0LFYZqZvQxuy1p07/c5E/l98vojySHJSQZoqEJ8WLcMiXjEFrzco3Ak90z1u7dNmwKkFumKW7q5qCRug=='
   PORT = '8080'
-  TURSO_TOKEN = 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3MDc4MTQwNjMsImlkIjoiM2U5MzFmOGQtY2E0Yy0xMWVlLWI5N2YtNmFiZWQzNDc4NmU4In0.q-KS_-pLsD77Lb8bTFgX2M3K7MsZM98IksPIQtK74XvxwK7L8P0IXbyzlssk8F3RTj-zlfV0pfHX6K2dHOswBA'
-  TURSO_URL = 'libsql://htmx-go-rafaelzasas.turso.io'
 
 [http_service]
   internal_port = 8080
