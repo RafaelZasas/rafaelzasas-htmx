@@ -11,6 +11,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var jwtKey = os.Getenv("JWT_KEY")
+
 // GenerateUID generates a unique identifier using uuid
 func GenerateUID() (string, error) {
 	uid, err := uuid.NewV7()
@@ -38,7 +40,6 @@ func CheckPasswordHash(password, hash string) bool {
 
 // GenerateJWTokens generates a pair of JWT tokens (access and refresh) for a given user ID.
 func GenerateJWTokens(uid string) (accessTokenString, refreshTokenString string, err error) {
-	jwtKey := os.Getenv("JWT_KEY")
 	// Access token expires after 5 minutes
 	expirationTimeAccessToken := time.Now().Add(5 * time.Minute)
 	// Refresh token expires after 7 days
@@ -76,8 +77,6 @@ func GenerateJWTokens(uid string) (accessTokenString, refreshTokenString string,
 
 func ValidateJWT(r *http.Request) (uid string, err error) {
 
-	jwtKey := os.Getenv("JWT_KEY")
-
 	cookie, err := r.Cookie("token")
 	if err != nil {
 		return "", err // Token not found
@@ -104,8 +103,6 @@ func ValidateJWT(r *http.Request) (uid string, err error) {
 }
 
 func ValidateRefreshToken(r *http.Request) (uid string, err error) {
-
-	jwtKey := os.Getenv("JWT_KEY")
 
 	cookie, err := r.Cookie("refresh_token")
 	if err != nil {
